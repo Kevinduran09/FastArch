@@ -121,7 +121,9 @@ def get(path: str, **kwargs: Any) -> Callable[[Callable[..., Any]], Callable[...
     return route(path, methods=("GET",), **kwargs)
 
 
-def post(path: str, **kwargs: Any) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+def post(
+    path: str, **kwargs: Any
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator for HTTP POST routes.
 
     Shorthand for `route(path, methods=["POST"], ...)`.
@@ -137,7 +139,9 @@ def put(path: str, **kwargs: Any) -> Callable[[Callable[..., Any]], Callable[...
     return route(path, methods=("PUT",), **kwargs)
 
 
-def patch(path: str, **kwargs: Any) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+def patch(
+    path: str, **kwargs: Any
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator for HTTP PATCH routes.
 
     Shorthand for `route(path, methods=["PATCH"], ...)`.
@@ -145,7 +149,9 @@ def patch(path: str, **kwargs: Any) -> Callable[[Callable[..., Any]], Callable[.
     return route(path, methods=("PATCH",), **kwargs)
 
 
-def delete(path: str, **kwargs: Any) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+def delete(
+    path: str, **kwargs: Any
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator for HTTP DELETE routes.
 
     Shorthand for `route(path, methods=["DELETE"], ...)`.

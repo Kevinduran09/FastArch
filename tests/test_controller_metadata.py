@@ -3,7 +3,10 @@ from __future__ import annotations
 from fastapi import FastAPI
 
 from fastarch import controller, get
-from fastarch.types import FASTARCH_CONTROLLER_DEFINITION_ATTR, FASTARCH_ROUTE_DEFINITION_ATTR
+from fastarch.types import (
+    FASTARCH_CONTROLLER_DEFINITION_ATTR,
+    FASTARCH_ROUTE_DEFINITION_ATTR,
+)
 
 
 def test_controller_stores_metadata_without_registering_routes() -> None:

@@ -147,6 +147,84 @@ The `app_or_router` argument (for chaining).
 
 ---
 
+### `include_controllers_from_package(app_or_router, package, prefix="")`
+
+Auto-discover and register all `@controller`-decorated classes from a package.
+
+```python
+from fastapi import FastAPI
+from fastarch import include_controllers_from_package
+
+app = FastAPI()
+
+# Scan entire "myapp.controllers" package recursively
+include_controllers_from_package(app, "myapp.controllers", prefix="/api/v1")
+
+# Or pass a module object directly
+import myapp.controllers
+include_controllers_from_package(app, myapp.controllers, prefix="/api/v1")
+```
+
+**Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `app_or_router` | `Any` | Required | FastAPI app or APIRouter instance |
+| `package` | `str \| ModuleType` | Required | Package name (e.g., `"myapp.controllers"`) or module object |
+| `prefix` | `str` | `""` | Global prefix for all discovered controllers |
+
+**Returns:**
+
+The `app_or_router` argument (for chaining).
+
+**Raises:**
+
+- `ImportError` — If package cannot be imported or nested modules fail
+- `TypeError` — If package is not a string or ModuleType
+
+**How it works:**
+
+1. Recursively scans all modules in the package tree
+2. Collects all classes decorated with `@controller()`
+3. Passes discovered controllers to `include_controllers()`
+4. Deduplicates controllers by module and qualified name
+
+**Example structure:**
+
+```python
+# myapp/controllers/__init__.py
+# (empty or re-exports)
+
+# myapp/controllers/users.py
+from fastarch import controller, get
+
+@controller("/users")
+class UsersController:
+    @get("/")
+    def list_users(self):
+        return []
+
+# myapp/controllers/health.py
+@controller("/health")
+class HealthController:
+    @get("")
+    def ping(self):
+        return {"status": "ok"}
+
+# main.py
+from fastapi import FastAPI
+from fastarch import include_controllers_from_package
+
+app = FastAPI()
+include_controllers_from_package(app, "myapp.controllers", prefix="/api/v1")
+
+# Now available:
+# GET /api/v1/users/
+# GET /api/v1/health
+```
+
+---
+
 ## Metadata Classes
 
 ### `ControllerDefinition`

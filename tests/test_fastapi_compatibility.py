@@ -69,7 +69,11 @@ class UsersController:
         }
 
 
-@controller("/secure", dependencies=(Depends(controller_dependency),), guards=(controller_guard,))
+@controller(
+    "/secure",
+    dependencies=(Depends(controller_dependency),),
+    guards=(controller_guard,),
+)
 class SecureController:
     @get("/ping", dependencies=(Depends(route_dependency),), guards=(route_guard,))
     def ping(self) -> dict[str, bool]:
@@ -78,7 +82,11 @@ class SecureController:
 
 def _get_api_route(app: FastAPI, path: str, method: str) -> APIRoute:
     for route in app.router.routes:
-        if isinstance(route, APIRoute) and route.path == path and method in route.methods:
+        if (
+            isinstance(route, APIRoute)
+            and route.path == path
+            and method in route.methods
+        ):
             return route
 
         nested_router = getattr(route, "original_router", None)
@@ -86,19 +94,27 @@ def _get_api_route(app: FastAPI, path: str, method: str) -> APIRoute:
             continue
 
         for nested_route in nested_router.routes:
-            if isinstance(nested_route, APIRoute) and nested_route.path == path and method in nested_route.methods:
+            if (
+                isinstance(nested_route, APIRoute)
+                and nested_route.path == path
+                and method in nested_route.methods
+            ):
                 return nested_route
 
     raise AssertionError(f"Route {method} {path} was not registered")
 
 
-def test_include_controllers_builds_native_fastapi_dependency_graph_for_bound_methods() -> None:
+def test_include_controllers_builds_native_fastapi_dependency_graph_for_bound_methods() -> (
+    None
+):
     app = FastAPI()
     include_controllers(app, [UsersController], prefix="/api")
     route = _get_api_route(app, "/api/users/", "POST")
     openapi = app.openapi()
     operation = openapi["paths"]["/api/users/"]["post"]
-    parameter_names = {parameter["name"] for parameter in operation.get("parameters", [])}
+    parameter_names = {
+        parameter["name"] for parameter in operation.get("parameters", [])
+    }
 
     assert route.status_code == 201
     assert route.response_model is UserResponse
@@ -114,14 +130,18 @@ def test_include_controllers_builds_native_fastapi_dependency_graph_for_bound_me
     assert result["request_id"] == "req-123"
 
 
-def test_include_controllers_merges_controller_and_route_dependencies_into_fastapi() -> None:
+def test_include_controllers_merges_controller_and_route_dependencies_into_fastapi() -> (
+    None
+):
     app = FastAPI()
     include_controllers(app, [SecureController])
     route = _get_api_route(app, "/secure/ping", "GET")
     openapi = app.openapi()
     operation = openapi["paths"]["/secure/ping"]["get"]
 
-    assert {parameter["name"] for parameter in operation.get("parameters", [])} == {"x-token"}
+    assert {parameter["name"] for parameter in operation.get("parameters", [])} == {
+        "x-token"
+    }
     assert [dependency.call for dependency in route.dependant.dependencies] == [
         controller_dependency,
         controller_guard,
@@ -139,7 +159,9 @@ def test_include_controllers_generates_openapi_without_self_and_with_metadata() 
 
     openapi = app.openapi()
     operation = openapi["paths"]["/api/users/"]["post"]
-    parameter_names = {parameter["name"] for parameter in operation.get("parameters", [])}
+    parameter_names = {
+        parameter["name"] for parameter in operation.get("parameters", [])
+    }
 
     assert operation["summary"] == "Create user"
     assert operation["description"] == "Create one user"

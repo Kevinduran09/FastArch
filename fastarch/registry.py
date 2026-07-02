@@ -16,7 +16,9 @@ from fastarch.types import (
 )
 
 
-def include_controllers(app_or_router: Any, controllers: Iterable[Any], prefix: str = "") -> Any:
+def include_controllers(
+    app_or_router: Any, controllers: Iterable[Any], prefix: str = ""
+) -> Any:
     """Register FastArch controllers on a FastAPI app or router.
 
     This function discovers all `@route`-decorated methods in the provided
@@ -116,14 +118,23 @@ def _build_controller_router(controller: Any, global_prefix: str) -> APIRouter:
 
     for route_name, route_definition in _iter_route_definitions(type(controller)):
         endpoint = getattr(controller, route_name)
-        merged_dependencies = _merge_dependencies(controller_definition, route_definition)
+        merged_dependencies = _merge_dependencies(
+            controller_definition, route_definition
+        )
         route_kwargs = _build_route_kwargs(route_definition, merged_dependencies)
-        router.add_api_route(route_definition.path, endpoint, methods=list(route_definition.methods), **route_kwargs)
+        router.add_api_route(
+            route_definition.path,
+            endpoint,
+            methods=list(route_definition.methods),
+            **route_kwargs,
+        )
 
     return router
 
 
-def _iter_route_definitions(controller_type: type[Any]) -> list[tuple[str, RouteDefinition]]:
+def _iter_route_definitions(
+    controller_type: type[Any],
+) -> list[tuple[str, RouteDefinition]]:
     """Discover all route-decorated methods in a controller class.
 
     Iterates through class members and returns those with `RouteDefinition` metadata.
@@ -189,7 +200,9 @@ def _merge_dependencies(
     return merged_dependencies or None
 
 
-def _build_route_kwargs(definition: RouteDefinition, merged_dependencies: list[Any] | None) -> dict[str, Any]:
+def _build_route_kwargs(
+    definition: RouteDefinition, merged_dependencies: list[Any] | None
+) -> dict[str, Any]:
     """Build kwargs for FastAPI's add_api_route() method.
 
     Extracts and formats all metadata from a RouteDefinition into a dict
@@ -239,7 +252,9 @@ def _join_paths(*segments: str) -> str:
     Example:
         >>> _join_paths("/api", "v1", "users/") -> "/api/v1/users"
     """
-    normalized = [segment.strip("/") for segment in segments if segment and segment != "/"]
+    normalized = [
+        segment.strip("/") for segment in segments if segment and segment != "/"
+    ]
     if not normalized:
         return ""
     return "/" + "/".join(normalized)

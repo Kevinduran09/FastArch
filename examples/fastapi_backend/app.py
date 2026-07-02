@@ -41,7 +41,9 @@ def audit_users_access() -> None:
 def require_demo_token(x_demo_token: Annotated[str | None, Header()] = None) -> None:
     """Controller-level guard exposed as a native FastAPI header dependency."""
     if not x_demo_token or x_demo_token != "demo-secret":
-        raise HTTPException(status_code=401, detail="Invalid or missing x-demo-token header")
+        raise HTTPException(
+            status_code=401, detail="Invalid or missing x-demo-token header"
+        )
 
 
 def audit_create_user() -> None:
@@ -51,7 +53,9 @@ def audit_create_user() -> None:
 def require_write_token(x_write_token: Annotated[str | None, Header()] = None) -> None:
     """Route-level guard exposed as a native FastAPI header dependency."""
     if not x_write_token or x_write_token != "write-secret":
-        raise HTTPException(status_code=403, detail="Invalid or missing x-write-token header")
+        raise HTTPException(
+            status_code=403, detail="Invalid or missing x-write-token header"
+        )
 
 
 @controller("/health", tags=("health",))
@@ -91,7 +95,9 @@ def create_app() -> FastAPI:
     app = FastAPI(title="FastArch Example API", version="0.1.0")
     service = InMemoryUserService()
 
-    include_controllers(app, [HealthController, UsersController(service)], prefix="/api/v1")
+    include_controllers(
+        app, [HealthController, UsersController(service)], prefix="/api/v1"
+    )
 
     return app
 

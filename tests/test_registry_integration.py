@@ -28,7 +28,9 @@ def _iter_routes(app: FastAPI) -> list[APIRoute]:
         if nested_router is None:
             continue
 
-        collected.extend(inner for inner in nested_router.routes if isinstance(inner, APIRoute))
+        collected.extend(
+            inner for inner in nested_router.routes if isinstance(inner, APIRoute)
+        )
 
     return collected
 
@@ -52,7 +54,9 @@ def test_include_controllers_registers_bound_methods_for_zero_arg_classes() -> N
     assert route.endpoint("123") == {"user_id": "123", "source": "controller-state"}
 
 
-def test_include_controllers_keeps_bound_methods_private_for_classes_and_instances() -> None:
+def test_include_controllers_keeps_bound_methods_private_for_classes_and_instances() -> (
+    None
+):
     @controller("/class")
     class ClassController:
         def __init__(self) -> None:
@@ -90,7 +94,9 @@ def test_include_controllers_keeps_bound_methods_private_for_classes_and_instanc
     assert instance_route.endpoint() == {"source": "instance"}
 
 
-def test_include_controllers_supports_multiple_controllers_and_prefix_composition() -> None:
+def test_include_controllers_supports_multiple_controllers_and_prefix_composition() -> (
+    None
+):
     @controller("/users")
     class UsersController:
         @get("/{user_id}")

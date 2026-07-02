@@ -15,7 +15,11 @@ from examples.fastapi_backend.app import (
 
 def _get_api_route(app: FastAPI, path: str, method: str) -> APIRoute:
     for route in app.router.routes:
-        if isinstance(route, APIRoute) and route.path == path and method in route.methods:
+        if (
+            isinstance(route, APIRoute)
+            and route.path == path
+            and method in route.methods
+        ):
             return route
 
         nested_router = getattr(route, "original_router", None)
@@ -23,7 +27,11 @@ def _get_api_route(app: FastAPI, path: str, method: str) -> APIRoute:
             continue
 
         for nested_route in nested_router.routes:
-            if isinstance(nested_route, APIRoute) and nested_route.path == path and method in nested_route.methods:
+            if (
+                isinstance(nested_route, APIRoute)
+                and nested_route.path == path
+                and method in nested_route.methods
+            ):
                 return nested_route
 
     raise AssertionError(f"Route {method} {path} was not registered")
@@ -72,10 +80,16 @@ def test_example_app_exposes_guard_order_through_fastapi_routes() -> None:
         audit_create_user,
         require_write_token,
     ]
-    assert {parameter["name"] for parameter in openapi["paths"]["/api/v1/users/"]["get"].get("parameters", [])} == {
-        "x-demo-token"
-    }
-    assert {parameter["name"] for parameter in openapi["paths"]["/api/v1/users/"]["post"].get("parameters", [])} == {
+    assert {
+        parameter["name"]
+        for parameter in openapi["paths"]["/api/v1/users/"]["get"].get("parameters", [])
+    } == {"x-demo-token"}
+    assert {
+        parameter["name"]
+        for parameter in openapi["paths"]["/api/v1/users/"]["post"].get(
+            "parameters", []
+        )
+    } == {
         "x-demo-token",
         "x-write-token",
     }

@@ -61,7 +61,12 @@ def mock_require_write(x_write_token: Annotated[str, Header()]) -> None:
 # ============================================================================
 
 
-@controller("/users", tags=["users"], dependencies=(Depends(mock_audit_log),), guards=(mock_require_admin,))
+@controller(
+    "/users",
+    tags=["users"],
+    dependencies=(Depends(mock_audit_log),),
+    guards=(mock_require_admin,),
+)
 class MockUsersController:
     """Mock users controller for testing."""
 
@@ -81,7 +86,14 @@ class MockUsersController:
                 return user
         raise ValueError("User not found")
 
-    @post("/", response_model=User, status_code=201, dependencies=(Depends(mock_get_current_user),), guards=(mock_require_write,), summary="Create user")
+    @post(
+        "/",
+        response_model=User,
+        status_code=201,
+        dependencies=(Depends(mock_get_current_user),),
+        guards=(mock_require_write,),
+        summary="Create user",
+    )
     def create_user(self, payload: CreateUserRequest) -> User:
         """Create a new user."""
         user_id = max([u.id for u in self.users]) + 1
@@ -116,7 +128,9 @@ def app_with_controllers(fastapi_app: FastAPI) -> FastAPI:
     """Create a FastAPI app with mock controllers registered."""
     from fastarch import include_controllers
 
-    include_controllers(fastapi_app, [MockHealthController, MockUsersController], prefix="/api/v1")
+    include_controllers(
+        fastapi_app, [MockHealthController, MockUsersController], prefix="/api/v1"
+    )
     return fastapi_app
 
 
