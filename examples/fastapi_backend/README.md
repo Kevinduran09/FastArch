@@ -1,46 +1,79 @@
-# FastArch FastAPI backend example
+# FastAPI Backend Example
 
-This example stays inside the MVP boundaries:
+Demostración de FastArch con guardias de autorización y dependencias.
 
-- manual controller registration
-- one zero-arg controller (`HealthController`)
-- one stateful controller instance (`UsersController`)
-- native FastAPI guard headers declared with FastArch `guards=`
-- in-memory service only
-- no DB, auth, autodiscovery, or CLI
-
-## Files
-
-- `app.py` — creates the FastAPI app and registers controllers with `include_controllers(...)`
-
-## Run
-
-From the repository root:
+## Ejecutar
 
 ```bash
-uvicorn examples.fastapi_backend.app:app --reload
+cd /Users/kevinduran/dev/fastarch
+make run
 ```
 
-Then open:
+O manualmente:
 
-- `http://127.0.0.1:8000/docs`
-- `GET /api/v1/health`
-- `GET /api/v1/users/` with header `x-demo-token: demo`
-- `POST /api/v1/users/` with headers `x-demo-token: demo` and `x-write-token: demo`
+```bash
+source .venv/bin/activate
+python -m uvicorn examples.fastapi_backend.app:app --reload --port 8000
+```
 
-The users controller demonstrates the approved merge order without adding a custom auth layer:
+## URLs
 
-1. controller dependencies
-2. controller guards
-3. route dependencies
-4. route guards
+- Documentación interactiva: http://127.0.0.1:8000/docs
+- OpenAPI JSON: http://127.0.0.1:8000/openapi.json
 
-Both guard headers are plain FastAPI `Header(...)` dependencies declared through FastArch `guards=`. The example keeps them no-op on purpose so the focus stays on native registration semantics.
+## Guardias requeridas
 
-Example POST body:
+### GET /api/v1/health (sin guardia)
 
+```bash
+curl http://127.0.0.1:8000/api/v1/health
+```
+
+Respuesta:
 ```json
-{
-  "name": "Grace Hopper"
-}
+{"ok": true}
 ```
+
+### GET /api/v1/users/ (requiere demo-token)
+
+```bash
+curl -H "x-demo-token: demo-secret" http://127.0.0.1:8000/api/v1/users/
+```
+
+### POST /api/v1/users/ (requiere demo-token + write-token)
+
+```bash
+curl -X POST \
+  -H "x-demo-token: demo-secret" \
+  -H "x-write-token: write-secret" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Grace Hopper"}' \
+  http://127.0.0.1:8000/api/v1/users/
+```
+
+## Códigos de error
+
+- `401` — Falta o es inválido `x-demo-token`
+- `403` — Falta o es inválido `x-write-token`
+
+## Estructura
+
+### HealthController
+- Sin guardias (acceso público)
+- `GET /api/v1/health` → `{"ok": true}`
+
+### UsersController  
+- Guardia `x-demo-token: demo-secret` a nivel controller
+- Guardia adicional `x-write-token: write-secret` para POST
+
+**Rutas:**
+- `GET /api/v1/users/` → lista de usuarios
+- `POST /api/v1/users/` → crear usuario
+
+## Demostración de guards
+
+Este ejemplo ilustra cómo FastArch:
+- Separa declarativamente guards de dependencies
+- Mantiene el orden: controller deps → controller guards → route deps → route guards
+- Usa headers nativos de FastAPI dentro del sistema de guards
+- Registra todo automáticamente en OpenAPI

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, Header, status
+from fastapi import Depends, FastAPI, Header, HTTPException, status
 from pydantic import BaseModel
 
 from fastarch import controller, get, include_controllers, post
@@ -38,16 +38,20 @@ def audit_users_access() -> None:
     """Controller-level dependency kept separate from guards until registration."""
 
 
-def require_demo_token(x_demo_token: Annotated[str, Header()]) -> None:
+def require_demo_token(x_demo_token: Annotated[str | None, Header()] = None) -> None:
     """Controller-level guard exposed as a native FastAPI header dependency."""
+    if not x_demo_token or x_demo_token != "demo-secret":
+        raise HTTPException(status_code=401, detail="Invalid or missing x-demo-token header")
 
 
 def audit_create_user() -> None:
     """Route-level dependency that still runs before route guards."""
 
 
-def require_write_token(x_write_token: Annotated[str, Header()]) -> None:
+def require_write_token(x_write_token: Annotated[str | None, Header()] = None) -> None:
     """Route-level guard exposed as a native FastAPI header dependency."""
+    if not x_write_token or x_write_token != "write-secret":
+        raise HTTPException(status_code=403, detail="Invalid or missing x-write-token header")
 
 
 @controller("/health", tags=("health",))
