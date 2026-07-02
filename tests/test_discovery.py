@@ -36,16 +36,18 @@ def test_include_controllers_from_package_matches_manual_registration_for_nested
     assert autodiscovery_client.get("/api/health").json() == {
         "ok": True,
     }
-    assert autodiscovery_client.get("/api/health").json() == manual_client.get(
-        "/api/health"
-    ).json()
+    assert (
+        autodiscovery_client.get("/api/health").json()
+        == manual_client.get("/api/health").json()
+    )
     assert autodiscovery_client.get("/api/users/").json() == [
         {"id": 1, "name": "Ada Lovelace"},
         {"id": 2, "name": "Grace Hopper"},
     ]
-    assert autodiscovery_client.get("/api/users/").json() == manual_client.get(
-        "/api/users/"
-    ).json()
+    assert (
+        autodiscovery_client.get("/api/users/").json()
+        == manual_client.get("/api/users/").json()
+    )
     assert _route_snapshot(autodiscovery_app) == _route_snapshot(manual_app)
     assert autodiscovery_app.openapi() == manual_app.openapi()
 
@@ -85,7 +87,9 @@ def test_include_controllers_from_package_discovers_controllers_from_plain_modul
 
     monkeypatch.setattr(discovery, "include_controllers", _record_include_calls(calls))
 
-    result = discovery.include_controllers_from_package(app, plain_module, prefix="/api")
+    result = discovery.include_controllers_from_package(
+        app, plain_module, prefix="/api"
+    )
 
     assert result is app
     assert calls == [(app, [single_controller], "/api")]
@@ -130,7 +134,9 @@ def test_include_controllers_from_package_discovers_nested_controllers_once(
         ],
     )
 
-    result = discovery.include_controllers_from_package(app, root_package, prefix="/api")
+    result = discovery.include_controllers_from_package(
+        app, root_package, prefix="/api"
+    )
 
     assert result is app
     assert calls == [(app, [health_controller, users_controller], "/api")]
@@ -158,7 +164,9 @@ def test_include_controllers_from_package_wraps_broken_nested_imports_from_fixtu
     assert "tests.fixtures.autodiscovery_broken_pkg.broken" in str(exc_info.value)
     assert "tests.fixtures.autodiscovery_broken_pkg" in str(exc_info.value)
     assert isinstance(exc_info.value.__cause__, ImportError)
-    assert "autodiscovery fixture nested import failure" in str(exc_info.value.__cause__)
+    assert "autodiscovery fixture nested import failure" in str(
+        exc_info.value.__cause__
+    )
 
 
 def _build_controller(module_name: str, prefix: str) -> type[Any]:
@@ -221,7 +229,12 @@ def _route_snapshot(
             dependency.call.__name__ for dependency in route.dependant.dependencies
         )
         snapshots.append(
-            (route.path, tuple(sorted(route.methods or ())), route.summary, dependency_calls)
+            (
+                route.path,
+                tuple(sorted(route.methods or ())),
+                route.summary,
+                dependency_calls,
+            )
         )
 
     return sorted(snapshots)
