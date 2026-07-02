@@ -137,7 +137,8 @@ def _iter_route_definitions(
 ) -> list[tuple[str, RouteDefinition]]:
     """Discover all route-decorated methods in a controller class.
 
-    Iterates through class members and returns those with `RouteDefinition` metadata.
+    Iterates through class members in definition order and returns those with
+    `RouteDefinition` metadata.
 
     Args:
         controller_type: The controller class to inspect.
@@ -147,7 +148,13 @@ def _iter_route_definitions(
     """
     routes: list[tuple[str, RouteDefinition]] = []
 
-    for name, member in inspect.getmembers(controller_type, predicate=callable):
+    for name, member in controller_type.__dict__.items():
+        if isinstance(member, (staticmethod, classmethod)):
+            member = member.__func__
+
+        if not callable(member):
+            continue
+
         definition = getattr(member, FASTARCH_ROUTE_DEFINITION_ATTR, None)
         if definition is not None:
             routes.append((name, definition))

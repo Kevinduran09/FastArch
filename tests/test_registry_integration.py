@@ -123,6 +123,32 @@ def test_include_controllers_supports_multiple_controllers_and_prefix_compositio
     assert health_route.endpoint() == {"ready": True}
 
 
+def test_include_controllers_preserves_method_definition_order() -> None:
+    @controller("/ordered")
+    class OrderedController:
+        @get("/first")
+        def first(self) -> dict[str, str]:
+            return {"order": "first"}
+
+        @get("/second")
+        def second(self) -> dict[str, str]:
+            return {"order": "second"}
+
+        @get("/third")
+        def third(self) -> dict[str, str]:
+            return {"order": "third"}
+
+    app = FastAPI()
+
+    include_controllers(app, [OrderedController])
+
+    route_paths = [
+        route.path for route in _iter_routes(app) if route.path.startswith("/ordered")
+    ]
+
+    assert route_paths == ["/ordered/first", "/ordered/second", "/ordered/third"]
+
+
 def test_include_controllers_rejects_invalid_controller_inputs() -> None:
     class MissingMetadata:
         pass
