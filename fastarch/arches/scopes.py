@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from enum import StrEnum
+from enum import Enum
 
 
-class Scope(StrEnum):
+class Scope(str, Enum):
     """Supported Arches dependency lifetimes."""
 
     SINGLETON = "singleton"
