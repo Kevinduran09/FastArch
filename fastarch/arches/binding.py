@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, TypeVar
+from typing import Any
 
 from fastarch.arches.scopes import Scope
-
-T = TypeVar("T")
 
 
 @dataclass(frozen=True, slots=True)
