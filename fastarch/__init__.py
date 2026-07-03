@@ -1,8 +1,9 @@
-"""Public package surface for the FastArch MVP."""
+"""Public package surface for FastArch."""
 
 from __future__ import annotations
 
 from fastarch.__version__ import __version__
+from fastarch.arches import Arch, Binding, BindingBuilder, Scope, bind, wires
 from fastarch.controllers import controller
 from fastarch.discovery import include_controllers_from_package
 from fastarch.registry import include_controllers
@@ -19,4 +20,10 @@ __all__ = [
     "delete",
     "include_controllers",
     "include_controllers_from_package",
+    "Arch",
+    "Binding",
+    "BindingBuilder",
+    "Scope",
+    "bind",
+    "wires",
 ]
