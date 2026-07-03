@@ -76,3 +76,7 @@ def test_arch_is_declarative_and_stores_nested_arches() -> None:
     assert len(api_arch.wires) == 1
     assert api_arch.arches == (users_arch,)
     assert users_arch.prefix == "/users"
+
+
+def test_arch_batch_1_has_no_runtime_mount() -> None:
+    assert "mount" not in vars(Arch)
