@@ -18,9 +18,9 @@ class Arch:
     """
 
     prefix: str = ""
-    controllers: tuple[Any, ...] = field(default_factory=tuple)
-    wires: tuple[Binding, ...] = field(default_factory=tuple)
-    arches: tuple[Arch, ...] = field(default_factory=tuple)
+    controllers: tuple[Any, ...] | list[Any] = field(default_factory=tuple)
+    wires: tuple[Binding, ...] | list[Binding] = field(default_factory=tuple)
+    arches: tuple[Arch, ...] | list[Arch] = field(default_factory=tuple)
 
     def __post_init__(self) -> None:
         normalized_controllers = tuple(self.controllers or ())
