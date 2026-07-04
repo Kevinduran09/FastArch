@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Sequence, Callable
 from typing import Any, TypeVar
 
 from fastarch.types import FASTARCH_CONTROLLER_DEFINITION_ATTR, ControllerDefinition
@@ -15,7 +15,7 @@ def controller(
     *,
     tags: Sequence[str] | None = None,
     dependencies: Sequence[Any] | None = None,
-    guards: Sequence[Any] | None = None,
+    guards: Sequence[Callable[..., Any]] | None = None,
     responses: dict[int | str, Any] | None = None,
     **kwargs: Any,
 ) -> Any:

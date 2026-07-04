@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any, Literal
+from collections.abc import Callable
 
 FASTARCH_CONTROLLER_DEFINITION_ATTR = "__fastarch_controller_definition__"
 FASTARCH_ROUTE_DEFINITION_ATTR = "__fastarch_route_definition__"
@@ -16,7 +17,7 @@ class ControllerDefinition:
     prefix: str = ""
     tags: tuple[str, ...] = ()
     dependencies: tuple[Any, ...] = ()
-    guards: tuple[Any, ...] = ()
+    guards: tuple[Callable[..., Any], ...] = ()
     responses: dict[int | str, Any] = field(default_factory=dict)
     extras: dict[str, Any] = field(default_factory=dict)
 
@@ -29,7 +30,7 @@ class RouteDefinition:
     status_code: int | None = None
     tags: tuple[str, ...] = ()
     dependencies: tuple[Any, ...] = ()
-    guards: tuple[Any, ...] = ()
+    guards: tuple[Callable[..., Any], ...] = ()
     summary: str | None = None
     description: str | None = None
     responses: dict[int | str, Any] = field(default_factory=dict)

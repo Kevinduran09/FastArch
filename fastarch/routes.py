@@ -16,7 +16,7 @@ def route(
     status_code: int | None = None,
     tags: Sequence[str] | None = None,
     dependencies: Sequence[Any] | None = None,
-    guards: Sequence[Any] | None = None,
+    guards: Sequence[Callable[..., Any]] | None = None,
     summary: str | None = None,
     description: str | None = None,
     responses: dict[int | str, Any] | None = None,
