@@ -104,10 +104,10 @@ def _get_api_route(app: FastAPI, path: str, method: str) -> APIRoute:
     raise AssertionError(f"Route {method} {path} was not registered")
 
 
-def test_include_controllers_builds_native_fastapi_dependency_graph_for_bound_methods() -> (
-    None
-):
-    app = FastAPI()
+def test_include_controllers_builds_native_fastapi_dependency_graph_for_bound_methods(
+    fastapi_app: FastAPI,
+) -> None:
+    app = fastapi_app
     include_controllers(app, [UsersController], prefix="/api")
     route = _get_api_route(app, "/api/users/", "POST")
     openapi = app.openapi()
@@ -130,10 +130,10 @@ def test_include_controllers_builds_native_fastapi_dependency_graph_for_bound_me
     assert result["request_id"] == "req-123"
 
 
-def test_include_controllers_merges_controller_and_route_dependencies_into_fastapi() -> (
-    None
-):
-    app = FastAPI()
+def test_include_controllers_merges_controller_and_route_dependencies_into_fastapi(
+    fastapi_app: FastAPI,
+) -> None:
+    app = fastapi_app
     include_controllers(app, [SecureController])
     route = _get_api_route(app, "/secure/ping", "GET")
     openapi = app.openapi()
@@ -153,8 +153,10 @@ def test_include_controllers_merges_controller_and_route_dependencies_into_fasta
     assert route.endpoint() == {"ok": True}
 
 
-def test_include_controllers_generates_openapi_without_self_and_with_metadata() -> None:
-    app = FastAPI()
+def test_include_controllers_generates_openapi_without_self_and_with_metadata(
+    fastapi_app: FastAPI,
+) -> None:
+    app = fastapi_app
     include_controllers(app, [UsersController], prefix="/api")
 
     openapi = app.openapi()

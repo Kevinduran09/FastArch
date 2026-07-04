@@ -35,7 +35,9 @@ def _iter_routes(app: FastAPI) -> list[APIRoute]:
     return collected
 
 
-def test_include_controllers_registers_bound_methods_for_zero_arg_classes() -> None:
+def test_include_controllers_registers_bound_methods_for_zero_arg_classes(
+    fastapi_app: FastAPI,
+) -> None:
     @controller("/users")
     class UsersController:
         def __init__(self) -> None:
@@ -45,7 +47,7 @@ def test_include_controllers_registers_bound_methods_for_zero_arg_classes() -> N
         def read_user(self, user_id: str) -> dict[str, str]:
             return {"user_id": user_id, "source": self.source}
 
-    app = FastAPI()
+    app = fastapi_app
 
     include_controllers(app, [UsersController], prefix="/api")
 
@@ -54,9 +56,9 @@ def test_include_controllers_registers_bound_methods_for_zero_arg_classes() -> N
     assert route.endpoint("123") == {"user_id": "123", "source": "controller-state"}
 
 
-def test_include_controllers_keeps_bound_methods_private_for_classes_and_instances() -> (
-    None
-):
+def test_include_controllers_keeps_bound_methods_private_for_classes_and_instances(
+    fastapi_app: FastAPI,
+) -> None:
     @controller("/class")
     class ClassController:
         def __init__(self) -> None:
@@ -76,7 +78,7 @@ def test_include_controllers_keeps_bound_methods_private_for_classes_and_instanc
             return {"source": self.source}
 
     instance = InstanceController()
-    app = FastAPI()
+    app = fastapi_app
 
     include_controllers(app, [ClassController, instance])
 
@@ -94,9 +96,9 @@ def test_include_controllers_keeps_bound_methods_private_for_classes_and_instanc
     assert instance_route.endpoint() == {"source": "instance"}
 
 
-def test_include_controllers_supports_multiple_controllers_and_prefix_composition() -> (
-    None
-):
+def test_include_controllers_supports_multiple_controllers_and_prefix_composition(
+    fastapi_app: FastAPI,
+) -> None:
     @controller("/users")
     class UsersController:
         @get("/{user_id}")
@@ -112,7 +114,7 @@ def test_include_controllers_supports_multiple_controllers_and_prefix_compositio
         def readiness(self) -> dict[str, bool]:
             return {"ready": self.ready}
 
-    app = FastAPI()
+    app = fastapi_app
 
     include_controllers(app, [UsersController(), HealthController], prefix="/v1")
 
@@ -123,7 +125,9 @@ def test_include_controllers_supports_multiple_controllers_and_prefix_compositio
     assert health_route.endpoint() == {"ready": True}
 
 
-def test_include_controllers_preserves_method_definition_order() -> None:
+def test_include_controllers_preserves_method_definition_order(
+    fastapi_app: FastAPI,
+) -> None:
     @controller("/ordered")
     class OrderedController:
         @get("/first")
@@ -138,7 +142,7 @@ def test_include_controllers_preserves_method_definition_order() -> None:
         def third(self) -> dict[str, str]:
             return {"order": "third"}
 
-    app = FastAPI()
+    app = fastapi_app
 
     include_controllers(app, [OrderedController])
 
@@ -149,7 +153,9 @@ def test_include_controllers_preserves_method_definition_order() -> None:
     assert route_paths == ["/ordered/first", "/ordered/second", "/ordered/third"]
 
 
-def test_include_controllers_rejects_invalid_controller_inputs() -> None:
+def test_include_controllers_rejects_invalid_controller_inputs(
+    fastapi_app: FastAPI,
+) -> None:
     class MissingMetadata:
         pass
 
@@ -158,7 +164,7 @@ def test_include_controllers_rejects_invalid_controller_inputs() -> None:
         def __init__(self, value: str) -> None:
             self.value = value
 
-    app = FastAPI()
+    app = fastapi_app
 
     try:
         include_controllers(app, [MissingMetadata])
@@ -173,3 +179,13 @@ def test_include_controllers_rejects_invalid_controller_inputs() -> None:
         assert "must be instantiated with no arguments" in str(error)
     else:
         raise AssertionError("Expected non-zero-arg controller to raise TypeError")
+
+
+def test_conftest_test_client_fixture_is_used_for_shared_app(test_client) -> None:
+    response = test_client.get(
+        "/api/v1/users/",
+        headers={"x-admin-token": "secret"},
+    )
+
+    assert response.status_code == 200
+    assert [user["name"] for user in response.json()] == ["Alice", "Bob"]
